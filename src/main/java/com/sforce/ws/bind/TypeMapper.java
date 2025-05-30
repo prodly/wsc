@@ -470,12 +470,8 @@ public class TypeMapper {
     }
 
     public void consumeEndTag(XmlInputStream in) throws IOException, ConnectionException {
-        int tag = in.nextTag();
-        if (XmlInputStream.END_TAG != tag) {
-            System.err.println("Warning: expected END_TAG but found " + tag + " at: " + in);
-            if (tag == XmlInputStream.START_TAG) {
-                in.consumePeeked();
-            }
+        if (XmlInputStream.END_TAG != in.nextTag()) {
+            throw new ConnectionException("unable to find end tag at: " + in);
         }
     }
 

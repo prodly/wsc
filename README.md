@@ -29,10 +29,6 @@ The following sample illustrates creating a connection and creating a new Accoun
         config.setUsername("username");
         config.setPassword("password");
 
-        // Optional: Disable schema validation for more lenient XML parsing
-        // This can help when dealing with malformed XML responses
-        // config.setValidateSchema(false);
-
         PartnerConnection connection = Connector.newConnection(config);
         SObject account = new SObject();
         account.setType("Account");
