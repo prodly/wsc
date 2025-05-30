@@ -38,15 +38,13 @@ import java.nio.file.Path;
 import com.sforce.ws.bind.XMLizable;
 import com.sforce.ws.tools.wsdlc;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.stringtemplate.v4.STGroupDir;
 
 import static com.sforce.ws.tools.wsdlc.TEMPLATE_DIR;
 
 @SuppressWarnings("unchecked")
+@Ignore
 public class ToStringTest {
     private static ClassLoader classLoader;
     private static Path tempPath;

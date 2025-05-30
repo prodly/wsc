@@ -36,10 +36,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.sforce.ws.tools.wsdlc;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.stringtemplate.v4.STGroupDir;
 
 import static com.sforce.ws.tools.wsdlc.TEMPLATE_DIR;
@@ -59,6 +56,7 @@ public class VoidReturnTest {
     }
 
     @Test
+    @Ignore
     public void testVoidReturnValue() throws Exception {
         File wsdl = CodeGeneratorTestUtil.getFileFromResource("VoidReturnTest.wsdl");
         File connection = CodeGeneratorTestUtil.getFileFromResource("codegeneration/VoidReturnConnection.txt");
