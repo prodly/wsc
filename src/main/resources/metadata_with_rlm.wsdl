@@ -12635,10 +12635,10 @@ Copyright 2006-2025 Salesforce.com, inc. All Rights Reserved
       <xsd:sequence>
        <xsd:element name="decimalScale" minOccurs="0" type="xsd:int"/>
        <xsd:element name="description" minOccurs="0" type="xsd:string"/>
-       <xsd:element name="processType" minOccurs="0" type="xsd:string"/>
        <xsd:element name="endDate" minOccurs="0" type="xsd:dateTime"/>
        <xsd:element name="expressionSetDefinition" minOccurs="0" type="xsd:string"/>
        <xsd:element name="label" type="xsd:string"/>
+       <xsd:element name="processType" minOccurs="0" type="xsd:string"/>
        <xsd:element name="rank" minOccurs="0" type="xsd:int"/>
        <xsd:element name="shouldShowExplExternally" minOccurs="0" type="xsd:boolean"/>
        <xsd:element name="startDate" type="xsd:dateTime"/>
