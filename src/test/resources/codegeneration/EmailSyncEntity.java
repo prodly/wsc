@@ -65,8 +65,6 @@ public class EmailSyncEntity implements com.sforce.ws.bind.XMLizable {
         setConflictResolution((com.sforce.soap.partner.wsc.EmailSyncConflictResolution)__typeMapper.readObject(__in, _lookupTypeInfo("conflictResolution", "urn:partner.soap.sforce.com","conflictResolution","urn:partner.soap.sforce.com","EmailSyncConflictResolution",1,1,true), com.sforce.soap.partner.wsc.EmailSyncConflictResolution.class));
         int fieldEndLine = __in.getLineNumber();
         lineNumbers.put(name, new int[] {fieldStartLine, fieldEndLine});
-      } else if (__in.getEventType() == com.sforce.ws.parser.XmlInputStream.START_TAG) {
-        __typeMapper.skipUnknownElement(__in);
       }
     }
 
@@ -100,8 +98,6 @@ public class EmailSyncEntity implements com.sforce.ws.bind.XMLizable {
         setDataSetFilter(__typeMapper.readString(__in, _lookupTypeInfo("dataSetFilter", "urn:partner.soap.sforce.com","dataSetFilter","http://www.w3.org/2001/XMLSchema","string",0,1,true), java.lang.String.class));
         int fieldEndLine = __in.getLineNumber();
         lineNumbers.put(name, new int[] {fieldStartLine, fieldEndLine});
-      } else if (__in.getEventType() == com.sforce.ws.parser.XmlInputStream.START_TAG) {
-        __typeMapper.skipUnknownElement(__in);
       }
     }
 
@@ -135,8 +131,6 @@ public class EmailSyncEntity implements com.sforce.ws.bind.XMLizable {
         setFieldMapping((com.sforce.soap.partner.wsc.EmailSyncFieldMapping[])__typeMapper.readObject(__in, _lookupTypeInfo("fieldMapping", "urn:partner.soap.sforce.com","fieldMapping","urn:partner.soap.sforce.com","EmailSyncFieldMapping",0,-1,true), com.sforce.soap.partner.wsc.EmailSyncFieldMapping[].class));
         int fieldEndLine = __in.getLineNumber();
         lineNumbers.put(name, new int[] {fieldStartLine, fieldEndLine});
-      } else if (__in.getEventType() == com.sforce.ws.parser.XmlInputStream.START_TAG) {
-        __typeMapper.skipUnknownElement(__in);
       }
     }
 
@@ -170,8 +164,6 @@ public class EmailSyncEntity implements com.sforce.ws.bind.XMLizable {
         setMatchPreference((com.sforce.soap.partner.wsc.EmailSyncMatchPreference)__typeMapper.readObject(__in, _lookupTypeInfo("matchPreference", "urn:partner.soap.sforce.com","matchPreference","urn:partner.soap.sforce.com","EmailSyncMatchPreference",1,1,true), com.sforce.soap.partner.wsc.EmailSyncMatchPreference.class));
         int fieldEndLine = __in.getLineNumber();
         lineNumbers.put(name, new int[] {fieldStartLine, fieldEndLine});
-      } else if (__in.getEventType() == com.sforce.ws.parser.XmlInputStream.START_TAG) {
-        __typeMapper.skipUnknownElement(__in);
       }
     }
 
@@ -205,8 +197,6 @@ public class EmailSyncEntity implements com.sforce.ws.bind.XMLizable {
         setName(__typeMapper.readString(__in, _lookupTypeInfo("name", "urn:partner.soap.sforce.com","name","http://www.w3.org/2001/XMLSchema","string",1,1,true), java.lang.String.class));
         int fieldEndLine = __in.getLineNumber();
         lineNumbers.put(name, new int[] {fieldStartLine, fieldEndLine});
-      } else if (__in.getEventType() == com.sforce.ws.parser.XmlInputStream.START_TAG) {
-        __typeMapper.skipUnknownElement(__in);
       }
     }
 
@@ -240,8 +230,6 @@ public class EmailSyncEntity implements com.sforce.ws.bind.XMLizable {
         setRecordTypeId(__typeMapper.readString(__in, _lookupTypeInfo("recordTypeId", "urn:partner.soap.sforce.com","recordTypeId","urn:partner.soap.sforce.com","ID",1,1,true), java.lang.String.class));
         int fieldEndLine = __in.getLineNumber();
         lineNumbers.put(name, new int[] {fieldStartLine, fieldEndLine});
-      } else if (__in.getEventType() == com.sforce.ws.parser.XmlInputStream.START_TAG) {
-        __typeMapper.skipUnknownElement(__in);
       }
     }
 
@@ -275,8 +263,6 @@ public class EmailSyncEntity implements com.sforce.ws.bind.XMLizable {
         setSyncDirection((com.sforce.soap.partner.wsc.EmailSyncDirection)__typeMapper.readObject(__in, _lookupTypeInfo("syncDirection", "urn:partner.soap.sforce.com","syncDirection","urn:partner.soap.sforce.com","EmailSyncDirection",1,1,true), com.sforce.soap.partner.wsc.EmailSyncDirection.class));
         int fieldEndLine = __in.getLineNumber();
         lineNumbers.put(name, new int[] {fieldStartLine, fieldEndLine});
-      } else if (__in.getEventType() == com.sforce.ws.parser.XmlInputStream.START_TAG) {
-        __typeMapper.skipUnknownElement(__in);
       }
     }
 
@@ -314,8 +300,6 @@ public class EmailSyncEntity implements com.sforce.ws.bind.XMLizable {
         setSyncFollowed(__typeMapper.readBoolean(__in, _lookupTypeInfo("syncFollowed", "urn:partner.soap.sforce.com","syncFollowed","http://www.w3.org/2001/XMLSchema","boolean",1,1,true), boolean.class));
         int fieldEndLine = __in.getLineNumber();
         lineNumbers.put(name, new int[] {fieldStartLine, fieldEndLine});
-      } else if (__in.getEventType() == com.sforce.ws.parser.XmlInputStream.START_TAG) {
-        __typeMapper.skipUnknownElement(__in);
       }
     }
 

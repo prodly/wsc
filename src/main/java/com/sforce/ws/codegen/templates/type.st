@@ -80,8 +80,6 @@ $endif$
       $member.setMethodName$($member.cast$__typeMapper.$member.loadMethod$(__in, _lookupTypeInfo("$member.fieldName$", $member.typeInfo$), $member.javaType$.class));
       int fieldEndLine = __in.getLineNumber();
       lineNumbers.put(name, new int[] {fieldStartLine, fieldEndLine\});
-    \} else if (__in.getEventType() == com.sforce.ws.parser.XmlInputStream.START_TAG) {
-      __typeMapper.skipUnknownElement(__in);
     \}
   \}
 

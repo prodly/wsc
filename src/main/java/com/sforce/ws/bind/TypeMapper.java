@@ -217,7 +217,7 @@ public class TypeMapper {
         		 SfdcApiType.Tooling.getSobjectNamespace().equals(namespace))) {
             return true;
         }
-
+         
         if (Generator.EXTENDED_ERROR_DETAILS.equalsIgnoreCase(name) && SfdcApiType.getFromNamespace(namespace) != null) {
         	//We use a custom template to generate source for it for known SfdcApiTypes. For the rest, generate the default classes which won't be able to use getField(...)
         	setGenerateExtendedErrorCodes(true);
@@ -361,7 +361,7 @@ public class TypeMapper {
         strValue = writeDouble(value);
         writeSimpleType(out, info, strValue, isSet, double.class.getName());
     }
-
+    
 
     private void writeBigDecimal(XmlOutputStream out, TypeInfo info,
 			BigDecimal value, boolean isSet) throws IOException {
@@ -502,22 +502,6 @@ public class TypeMapper {
             return false;
         }
         return sameTag(getNamespace(info), info.getName(), in.getNamespace(), in.getName());
-    }
-
-    /**
-     * Skip the current element if it's not expected.
-     * This method should be called when the parser is positioned on a START_TAG.
-     * If the element is not expected, it will be skipped, and the parser will be positioned
-     * on the next element after the skipped subtree.
-     *
-     * @param in The XML input stream
-     * @throws IOException If there's an error reading from the stream
-     * @throws ConnectionException If there's an error parsing the XML
-     */
-    public void skipUnknownElement(XmlInputStream in) throws IOException, ConnectionException {
-        if (in.getEventType() == XmlInputStream.START_TAG) {
-            in.skipSubTree();
-        }
     }
 
 	public String readString(XmlInputStream in, TypeInfo info, Class<?> type) throws IOException, ConnectionException {
@@ -861,11 +845,11 @@ public class TypeMapper {
     public boolean generateInterfaces() {
         return generateInterfaces;
     }
-
+    
     public void setGenerateExtendedErrorCodes(boolean generateExtendedErrorCodes) {
     	this.generateExtendedErrorCodes = generateExtendedErrorCodes;
     }
-
+    
     public boolean getGenerateExtendedErrorCodes() {
     	return generateExtendedErrorCodes;
     }
