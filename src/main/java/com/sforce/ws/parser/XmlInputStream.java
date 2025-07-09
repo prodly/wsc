@@ -178,7 +178,7 @@ public final class XmlInputStream {
     peekTag = nextTag();
     return peekTag;
   }
-  
+
   public int peek() throws ConnectionException, IOException {
       if (peekTag != EMPTY) {
           return peekTag;
@@ -192,4 +192,17 @@ public final class XmlInputStream {
         }
         return peek;
     }
+
+  /**
+   * Skip sub tree that is currently parser positioned on.
+   * <br>NOTE: parser must be on START_TAG and when function returns
+   * parser will be positioned on corresponding END_TAG
+   */
+  public void skipSubTree() throws IOException, ConnectionException {
+    try {
+      parser.skipSubTree();
+    } catch (XmlPullParserException e) {
+      throw new ConnectionException("Failed to skip subtree", e);
+    }
+  }
 }
