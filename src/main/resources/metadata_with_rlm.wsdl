@@ -12637,6 +12637,7 @@ Copyright 2006-2025 Salesforce.com, inc. All Rights Reserved
        <xsd:element name="description" minOccurs="0" type="xsd:string"/>
        <xsd:element name="endDate" minOccurs="0" type="xsd:dateTime"/>
        <xsd:element name="expressionSetDefinition" minOccurs="0" type="xsd:string"/>
+       <xsd:element name="interfaceSourceType" minOccurs="0" type="tns:ExpsSetInterfaceSourceType"/>
        <xsd:element name="label" type="xsd:string"/>
        <xsd:element name="processType" minOccurs="0" type="xsd:string"/>
        <xsd:element name="rank" minOccurs="0" type="xsd:int"/>
