@@ -276,6 +276,7 @@ Copyright 2006-2025 Salesforce.com, inc. All Rights Reserved
      <xsd:enumeration value="Failed"/>
      <xsd:enumeration value="Canceling"/>
      <xsd:enumeration value="Canceled"/>
+     <xsd:enumeration value="Finalizing"/>
     </xsd:restriction>
    </xsd:simpleType>
    <xsd:complexType name="Metadata">
