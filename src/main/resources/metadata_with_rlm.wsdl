@@ -14421,7 +14421,6 @@ Copyright 2006-2026 Salesforce.com, inc. All Rights Reserved
                     <xsd:enumeration value="IPPAttribute"/>
                     <xsd:enumeration value="OIAttribute"/>
                     <xsd:enumeration value="OmniScriptDS"/>
-                    <xsd:enumeration value="omnistudio.IntegrationProcedureDataSourceProvider"/>
                     <xsd:enumeration value="OpenSearch"/>
                     <xsd:enumeration value="outgoingemail"/>
                     <xsd:enumeration value="QLIAttribute"/>
