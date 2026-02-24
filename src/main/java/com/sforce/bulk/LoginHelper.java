@@ -68,6 +68,20 @@ public class LoginHelper {
 
     void doLogin() throws IOException, StreamException {
         String authEndpoint = handler.getConfig().getAuthEndpoint();
+        if (authEndpoint == null || authEndpoint.isEmpty()) {
+            throw new StreamException("authEndpoint is required. Set it via ConnectorConfig.setAuthEndpoint().");
+        }
+
+        String username = handler.getConfig().getUsername();
+        if (username == null || username.isEmpty()) {
+            throw new StreamException("username is required. Set it via ConnectorConfig.setUsername().");
+        }
+
+        String password = handler.getConfig().getPassword();
+        if (password == null || password.isEmpty()) {
+            throw new StreamException("password is required. Set it via ConnectorConfig.setPassword().");
+        }
+
         String baseUrl = deriveBaseUrl(authEndpoint);
         String apiVersion = deriveApiVersion(authEndpoint);
         String tokenUrl = baseUrl + "/services/oauth2/token";
@@ -86,8 +100,8 @@ public class LoginHelper {
         String body = GRANT_TYPE_PASSWORD
                 + PARAM_CLIENT_ID + URLEncoder.encode(clientId, StandardCharsets.UTF_8)
                 + PARAM_CLIENT_SECRET + URLEncoder.encode(clientSecret != null ? clientSecret : "", StandardCharsets.UTF_8)
-                + PARAM_USERNAME + URLEncoder.encode(handler.getConfig().getUsername() != null ? handler.getConfig().getUsername() : "", StandardCharsets.UTF_8)
-                + PARAM_PASSWORD + URLEncoder.encode(handler.getConfig().getPassword() != null ? handler.getConfig().getPassword() : "", StandardCharsets.UTF_8);
+                + PARAM_USERNAME + URLEncoder.encode(username, StandardCharsets.UTF_8)
+                + PARAM_PASSWORD + URLEncoder.encode(password, StandardCharsets.UTF_8);
 
         URL url;
         try {
