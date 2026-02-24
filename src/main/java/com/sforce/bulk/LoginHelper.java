@@ -110,40 +110,42 @@ public class LoginHelper {
             throw new StreamException("Invalid OAuth2 token URL: " + tokenUrl);
         }
 
-        HttpURLConnection conn;
-        conn = handler.getConfig().createConnection(url, null, false);
+        HttpURLConnection conn = handler.getConfig().createConnection(url, null, false);
+        try {
+            conn.setRequestMethod(HTTP_METHOD_POST);
+            conn.setRequestProperty(HEADER_CONTENT_TYPE, CONTENT_TYPE_FORM_URLENCODED);
+            conn.setDoOutput(true);
 
-        conn.setRequestMethod(HTTP_METHOD_POST);
-        conn.setRequestProperty(HEADER_CONTENT_TYPE, CONTENT_TYPE_FORM_URLENCODED);
-        conn.setDoOutput(true);
+            try (OutputStream os = conn.getOutputStream()) {
+                os.write(body.getBytes(StandardCharsets.UTF_8));
+            }
 
-        try (OutputStream os = conn.getOutputStream()) {
-            os.write(body.getBytes(StandardCharsets.UTF_8));
+            int status = conn.getResponseCode();
+            InputStream errorStream = conn.getErrorStream();
+            InputStream responseStream = status == 200 ? conn.getInputStream() : errorStream;
+            byte[] responseBytes = responseStream != null ? FileUtil.toBytes(responseStream) : new byte[0];
+            String response = new String(responseBytes, StandardCharsets.UTF_8);
+
+            if (status != 200) {
+                throw new StreamException("OAuth2 login failed (HTTP " + status + "): " + response);
+            }
+
+            String accessToken = extractJsonStringValue(JSON_FIELD_ACCESS_TOKEN, response);
+            String instanceUrl = extractJsonStringValue(JSON_FIELD_INSTANCE_URL, response);
+
+            if (accessToken == null || instanceUrl == null) {
+                throw new StreamException("Failed to parse OAuth2 response: " + response);
+            }
+
+            handler.getConfig().setSessionId(accessToken);
+            handler.info("Access token obtained successfully.");
+
+            String bulkUrl = instanceUrl + "/services/async/" + apiVersion + "/";
+            handler.getConfig().setRestEndpoint(bulkUrl);
+            handler.info("Bulk API Server Url: " + bulkUrl);
+        } finally {
+            conn.disconnect();
         }
-
-        int status = conn.getResponseCode();
-        InputStream errorStream = conn.getErrorStream();
-        InputStream responseStream = status == 200 ? conn.getInputStream() : errorStream;
-        byte[] responseBytes = responseStream != null ? FileUtil.toBytes(responseStream) : new byte[0];
-        String response = new String(responseBytes, StandardCharsets.UTF_8);
-
-        if (status != 200) {
-            throw new StreamException("OAuth2 login failed (HTTP " + status + "): " + response);
-        }
-
-        String accessToken = extractJsonStringValue(JSON_FIELD_ACCESS_TOKEN, response);
-        String instanceUrl = extractJsonStringValue(JSON_FIELD_INSTANCE_URL, response);
-
-        if (accessToken == null || instanceUrl == null) {
-            throw new StreamException("Failed to parse OAuth2 response: " + response);
-        }
-
-        handler.getConfig().setSessionId(accessToken);
-        handler.info("Access token obtained successfully.");
-
-        String bulkUrl = instanceUrl + "/services/async/" + apiVersion + "/";
-        handler.getConfig().setRestEndpoint(bulkUrl);
-        handler.info("Bulk API Server Url: " + bulkUrl);
     }
 
     /**
