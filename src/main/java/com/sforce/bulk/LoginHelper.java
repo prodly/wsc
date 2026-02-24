@@ -27,105 +27,158 @@
 package com.sforce.bulk;
 
 import com.sforce.ws.ConnectionException;
-import com.sforce.ws.transport.Transport;
 import com.sforce.ws.util.FileUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 /**
- * This class is a helper to do login using partner wsdl.
- * 
+ * This class is a helper to authenticate using the OAuth2 username-password flow.
+ * The Salesforce SOAP Partner API login() call was removed from API versions 65.0
+ * and later; this implementation uses the /services/oauth2/token endpoint instead.
+ *
  * <p/>
  * User: mcheenath
  * Date: Dec 10, 2010
  */
 public class LoginHelper {
+    private static final String SALESFORCE_VERSION =  "66.0";
+    private static final String GRANT_TYPE_PASSWORD = "grant_type=password";
+    private static final String PARAM_CLIENT_ID = "&client_id=";
+    private static final String PARAM_CLIENT_SECRET = "&client_secret=";
+    private static final String PARAM_USERNAME = "&username=";
+    private static final String PARAM_PASSWORD = "&password=";
+    private static final String HTTP_METHOD_POST = "POST";
+    private static final String HEADER_CONTENT_TYPE = "Content-Type";
+    private static final String CONTENT_TYPE_FORM_URLENCODED = "application/x-www-form-urlencoded";
+    private static final String JSON_FIELD_ACCESS_TOKEN = "access_token";
+    private static final String JSON_FIELD_INSTANCE_URL = "instance_url";
 
-    private StreamHandler handler;
+    private final StreamHandler handler;
 
     LoginHelper(StreamHandler handler) {
         this.handler = handler;
     }
 
     void doLogin() throws IOException, StreamException {
-        handler.info("Calling login on: " + handler.getConfig().getAuthEndpoint());
+        String authEndpoint = handler.getConfig().getAuthEndpoint();
+        String baseUrl = deriveBaseUrl(authEndpoint);
+        String apiVersion = deriveApiVersion(authEndpoint);
+        String tokenUrl = baseUrl + "/services/oauth2/token";
 
-        String request = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-                "<env:Envelope xmlns:env=\"http://schemas.xmlsoap.org/soap/envelope/\" " +
-                "xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" " +
-                "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" +
-                "<env:Body><m:login xmlns:m=\"urn:partner.soap.sforce.com\" " +
-                "xmlns:sobj=\"urn:sobject.partner.soap.sforce.com\">" +
-                "<m:username>" +
-                handler.getConfig().getUsername() +
-                "</m:username>" +
-                "<m:password>" +
-                handler.getConfig().getPassword() +
-                "</m:password>" +
-                "</m:login>" +
-                "</env:Body>" +
-                "</env:Envelope>";
+        handler.info("Calling OAuth2 login on: " + tokenUrl);
 
-        Transport transport;
+        String clientId = handler.getConfig().getClientId();
+        String clientSecret = handler.getConfig().getClientSecret();
+
+        if (clientId == null || clientId.isEmpty()) {
+            throw new StreamException(
+                "clientId is required for OAuth2 authentication. " +
+                "Set it via ConnectorConfig.setClientId() with your Connected App consumer key.");
+        }
+
+        String body = GRANT_TYPE_PASSWORD
+                + PARAM_CLIENT_ID + URLEncoder.encode(clientId, StandardCharsets.UTF_8)
+                + PARAM_CLIENT_SECRET + URLEncoder.encode(clientSecret != null ? clientSecret : "", StandardCharsets.UTF_8)
+                + PARAM_USERNAME + URLEncoder.encode(handler.getConfig().getUsername() != null ? handler.getConfig().getUsername() : "", StandardCharsets.UTF_8)
+                + PARAM_PASSWORD + URLEncoder.encode(handler.getConfig().getPassword() != null ? handler.getConfig().getPassword() : "", StandardCharsets.UTF_8);
+
+        URL url;
         try {
-            transport = handler.getConfig().createTransport();
-        } catch (ConnectionException x) {
-            throw new IOException(String.format("Cannot create transport %s", handler.getConfig().getTransport()), x);
-        }
-        OutputStream out = transport.connect(handler.getConfig().getAuthEndpoint(), "");
-        out.write(request.getBytes());
-        out.close();
-
-        InputStream input = transport.getContent();
-        String response = new String(FileUtil.toBytes(input));
-
-        String sessionId = getValueForTag("sessionId", response);
-        handler.getConfig().setSessionId(sessionId);
-        handler.info("Session Id: " + sessionId);
-
-        String serverUrl = getValueForTag("serverUrl", response);
-
-        if (sessionId == null || serverUrl == null) {
-            throw new StreamException("Failed to login " + response);
+            url = new URL(tokenUrl);
+        } catch (MalformedURLException e) {
+            throw new StreamException("Invalid OAuth2 token URL: " + tokenUrl);
         }
 
-        setBulkUrl(response, serverUrl);
-    }
+        HttpURLConnection conn;
+        conn = handler.getConfig().createConnection(url, null, false);
 
-    private void setBulkUrl(String response, String serverUrl) throws StreamException {
-        String partnerTag = "/services/Soap/u/";
+        conn.setRequestMethod(HTTP_METHOD_POST);
+        conn.setRequestProperty(HEADER_CONTENT_TYPE, CONTENT_TYPE_FORM_URLENCODED);
+        conn.setDoOutput(true);
 
-        int index = serverUrl.indexOf(partnerTag);
-
-        if (index == -1) {
-            throw new StreamException("Unknown serverUrl " + serverUrl + "in response " + response);
+        try (OutputStream os = conn.getOutputStream()) {
+            os.write(body.getBytes(StandardCharsets.UTF_8));
         }
 
-        String bulkUrl = serverUrl.substring(0, index);
+        int status = conn.getResponseCode();
+        InputStream errorStream = conn.getErrorStream();
+        InputStream responseStream = status == 200 ? conn.getInputStream() : errorStream;
+        byte[] responseBytes = responseStream != null ? FileUtil.toBytes(responseStream) : new byte[0];
+        String response = new String(responseBytes, StandardCharsets.UTF_8);
 
-        int verIndex = index +  partnerTag.length();
-        String version = serverUrl.substring(verIndex, verIndex+4);
+        if (status != 200) {
+            throw new StreamException("OAuth2 login failed (HTTP " + status + "): " + response);
+        }
 
-        bulkUrl = bulkUrl + "/services/async/" + version + "/";
+        String accessToken = extractJsonStringValue(JSON_FIELD_ACCESS_TOKEN, response);
+        String instanceUrl = extractJsonStringValue(JSON_FIELD_INSTANCE_URL, response);
 
+        if (accessToken == null || instanceUrl == null) {
+            throw new StreamException("Failed to parse OAuth2 response: " + response);
+        }
+
+        handler.getConfig().setSessionId(accessToken);
+        handler.info("Access token obtained successfully.");
+
+        String bulkUrl = instanceUrl + "/services/async/" + apiVersion + "/";
         handler.getConfig().setRestEndpoint(bulkUrl);
-        handler.info("Bulk API Server Url :" + bulkUrl);
+        handler.info("Bulk API Server Url: " + bulkUrl);
     }
 
-    private String getValueForTag(String tag, String response) {
-        String value = null;
-        int index = response.indexOf("<" + tag + ">");
-
-        if (index != -1) {
-            int end = response.indexOf("</" + tag + ">");
-
-            if (end != -1) {
-                value = response.substring(index + tag.length() + 2, end);
-            }
+    /**
+     * Extracts the base URL (scheme + host + optional port) from a SOAP auth endpoint such as
+     * https://login.salesforce.com/services/Soap/u/66.0, or falls back to URL parsing.
+     */
+    private String deriveBaseUrl(String authEndpoint) throws StreamException {
+        int idx = authEndpoint.indexOf("/services/");
+        if (idx != -1) {
+            return authEndpoint.substring(0, idx);
         }
+        try {
+            URL u = new URL(authEndpoint);
+            int port = u.getPort();
+            return u.getProtocol() + "://" + u.getHost() + (port != -1 ? ":" + port : "");
+        } catch (MalformedURLException e) {
+            throw new StreamException("Cannot derive base URL from authEndpoint: " + authEndpoint);
+        }
+    }
 
-        return value;
+    /**
+     * Extracts the API version from a SOAP auth endpoint such as
+     * https://login.salesforce.com/services/Soap/u/66.0 → "66.0".
+     */
+    private String deriveApiVersion(String authEndpoint) {
+        String soapPath = "/services/Soap/u/";
+        int idx = authEndpoint.indexOf(soapPath);
+        if (idx != -1) {
+            String tail = authEndpoint.substring(idx + soapPath.length());
+            int slash = tail.indexOf('/');
+            return slash != -1 ? tail.substring(0, slash) : tail;
+        }
+        return SALESFORCE_VERSION;
+    }
+
+    /**
+     * Minimal JSON string-value extractor for flat OAuth2 responses.
+     * Handles escaped quotes within the value are not expected in these fields.
+     */
+    private String extractJsonStringValue(String key, String json) {
+        String search = "\"" + key + "\"";
+        int idx = json.indexOf(search);
+        if (idx == -1) return null;
+        int colon = json.indexOf(':', idx + search.length());
+        if (colon == -1) return null;
+        int start = json.indexOf('"', colon + 1);
+        if (start == -1) return null;
+        int end = json.indexOf('"', start + 1);
+        if (end == -1) return null;
+        return json.substring(start + 1, end);
     }
 }
