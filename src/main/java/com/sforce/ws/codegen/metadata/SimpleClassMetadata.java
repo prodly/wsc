@@ -50,7 +50,8 @@ public class SimpleClassMetadata extends ClassMetadata {
 	}
 	
     private static final Pattern DASH_PATTERN = Pattern.compile("-");
-    
+    private static final Pattern DOT_PATTERN = Pattern.compile("\\.");
+
     public static Collection<EnumAndValue> getEnumsAndValues(SimpleType simpleType, TypeMapper typeMapper) {
     	Collection<EnumAndValue> enumsAndValues = new ArrayList<EnumAndValue>();
     	for (Enumeration e : simpleType.getRestriction()) {
@@ -71,6 +72,9 @@ public class SimpleClassMetadata extends ClassMetadata {
         }
         if (subname.indexOf("-") > 0) {
             subname = DASH_PATTERN.matcher(subname).replaceAll("_");
+        }
+        if (subname.indexOf(".") > 0) {
+            subname = DOT_PATTERN.matcher(subname).replaceAll("_");
         }
         return subname;
     }
