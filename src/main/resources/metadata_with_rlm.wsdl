@@ -1107,12 +1107,16 @@ Copyright 2006-2026 Salesforce.com, inc. All Rights Reserved
     <xsd:complexContent>
      <xsd:extension base="tns:Metadata">
       <xsd:sequence>
+       <xsd:element name="agentGraphRef" minOccurs="0" type="xsd:string"/>
+       <xsd:element name="agentScript" minOccurs="0" type="xsd:string"/>
        <xsd:element name="attributeMappings" minOccurs="0" maxOccurs="unbounded" type="tns:GenAiPlannerAttrMapping"/>
        <xsd:element name="botTemplate" minOccurs="0" type="xsd:string"/>
        <xsd:element name="capabilities" minOccurs="0" type="xsd:string"/>
        <xsd:element name="description" minOccurs="0" type="xsd:string"/>
        <xsd:element name="genAiFunctions" minOccurs="0" maxOccurs="unbounded" type="tns:GenAiPlannerFunctionDef"/>
        <xsd:element name="genAiPlugins" minOccurs="0" maxOccurs="unbounded" type="tns:GenAiPlannerFunctionDef"/>
+       <xsd:element name="localTopicLinks" minOccurs="0" maxOccurs="unbounded" type="tns:GenAiPlannerFunctionDef"/>
+       <xsd:element name="localTopics" minOccurs="0" maxOccurs="unbounded" type="tns:GenAiPlugin"/>
        <xsd:element name="masterLabel" type="xsd:string"/>
        <xsd:element name="plannerSurfaces" minOccurs="0" maxOccurs="unbounded" type="tns:AiPlannerSurfaceDef"/>
        <xsd:element name="plannerType" type="tns:PlannerType"/>
